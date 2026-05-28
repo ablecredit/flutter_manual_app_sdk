@@ -1,0 +1,24 @@
+# Dart/Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+
+# Build artifacts
+build/
+
+# IDE
+.idea/
+*.iml
+
+# macOS
+.DS_Store
+
+# AAR binaries (distribute separately)
+*.aar
+
+# Android local/generated
+android/.gradle/
+android/.kotlin/
+android/.idea/
+android/app/.gradle/
