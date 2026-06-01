@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Horizontal top bar of F -->
+    <path
+        android:fillColor="#111111"
+        android:pathData="M40,34 L68,34 L68,40 L40,40 Z" />
+    <!-- Vertical stem of F -->
+    <path
+        android:fillColor="#111111"
+        android:pathData="M40,34 L46,34 L46,74 L40,74 Z" />
+    <!-- Middle bar of F -->
+    <path
+        android:fillColor="#111111"
+        android:pathData="M40,54 L62,54 L62,60 L40,60 Z" />
+</vector>

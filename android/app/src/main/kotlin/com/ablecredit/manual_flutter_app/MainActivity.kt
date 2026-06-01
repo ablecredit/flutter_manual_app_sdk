@@ -2,6 +2,7 @@ package com.ablecredit.manual_flutter_app
 
 import com.google.gson.Gson
 import com.ablecredit.sdk.manager.AbleCredit
+import com.ablecredit.sdk.model.constants.AbleCreditErrorCodes
 import com.ablecredit.sdk.model.AbleCreditFileStatus
 import com.ablecredit.sdk.model.AbleCreditFileUploadListener
 import com.ablecredit.sdk.model.AbleCreditLoanResponse
@@ -40,16 +41,37 @@ class MainActivity : FlutterActivity() {
                         val tenantId = call.argument<String>("tenantId").orEmpty()
                         val userId = call.argument<String>("userId").orEmpty()
                         val baseUrl = call.argument<String>("baseUrl").orEmpty()
-
-                        val configResult = AbleCredit.configure(this, apiKey, tenantId, userId, baseUrl)
-                        when (configResult) {
-                            is AbleCreditResult.Success -> result.success(mapOf("success" to true, "message" to "SDK configured"))
-                            is AbleCreditResult.Failure -> result.success(mapOf(
-                                "success" to false,
-                                "message" to configResult.message,
-                                "code" to configResult.ableCreditErrorCode.toString()
-                            ))
-                        }
+                        val branchId = call.argument<String>("branchId")?.takeIf { it.isNotBlank() }
+                        Thread {
+                            val configResult = AbleCredit.configure(
+                                this,
+                                apiKey,
+                                tenantId,
+                                userId,
+                                baseUrl,
+                                branchId
+                            )
+                            runOnUiThread {
+                                when (configResult) {
+                                    is AbleCreditResult.Success -> result.success(
+                                        mapOf("success" to true, "message" to "SDK configured")
+                                    )
+                                    is AbleCreditResult.Failure -> {
+                                        if (configResult.ableCreditErrorCode == AbleCreditErrorCodes.SDK_ALREADY_INITIALIZED) {
+                                            result.success(mapOf("success" to true, "message" to "SDK configured"))
+                                        } else {
+                                            result.success(
+                                                mapOf(
+                                                    "success" to false,
+                                                    "message" to configResult.message,
+                                                    "code" to configResult.ableCreditErrorCode.toString()
+                                                )
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }.start()
                     }
                     "createNewLoanCase" -> {
                         val payload = call.argument<Map<String, Any?>>("payload") ?: emptyMap()

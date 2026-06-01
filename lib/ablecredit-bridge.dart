@@ -10,13 +10,16 @@ class AbleCreditSdkBridge {
     required String tenantId,
     required String userId,
     required String baseUrl,
+    String branchId = '',
   }) async {
-    final dynamic res = await _channel.invokeMethod('configure', {
+    final args = <String, dynamic>{
       'apiKey': apiKey,
       'tenantId': tenantId,
       'userId': userId,
       'baseUrl': baseUrl,
-    });
+    };
+    if (branchId.trim().isNotEmpty) args['branchId'] = branchId.trim();
+    final dynamic res = await _channel.invokeMethod('configure', args);
     return Map<String, dynamic>.from(res as Map);
   }
 
