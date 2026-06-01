@@ -87,9 +87,15 @@ class AbleCreditSdkBridge {
     return Map<String, dynamic>.from(res as Map);
   }
 
-  static Stream<Map<String, dynamic>> get audioUploadStatusStream {
+  /// Emits upload status events for all media types.
+  /// Each event contains: `type` (audio|family_photos|business_photos|collateral_photos),
+  /// `uniqueId`, `status` (AbleCreditFileStatus name), `message`.
+  static Stream<Map<String, dynamic>> get fileUploadStatusStream {
     return _audioUploadStatusChannel.receiveBroadcastStream().map(
           (event) => Map<String, dynamic>.from(event as Map),
     );
   }
+
+  @Deprecated('Use fileUploadStatusStream')
+  static Stream<Map<String, dynamic>> get audioUploadStatusStream => fileUploadStatusStream;
 }
