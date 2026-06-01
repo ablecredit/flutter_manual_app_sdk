@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../ablecredit-bridge.dart';
@@ -23,13 +25,37 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _filtersEnabled = false;
   bool _fetchLoading = false;
   bool _createLoading = false;
+  final Set<String> _reportLoadingIds = {};
+
+  StreamSubscription<Map<String, dynamic>>? _uploadStatusSub;
 
   @override
   void initState() {
     super.initState();
     _loadLoans();
     _loadFiltersState();
+    _subscribeToUploadStatus();
   }
+
+  void _subscribeToUploadStatus() {
+    debugPrint('[AbleCredit] Subscribing to fileUploadStatusStream');
+    _uploadStatusSub = AbleCreditSdkBridge.fileUploadStatusStream.listen(
+      (event) {
+        final type = event['type']?.toString() ?? 'unknown';
+        final uniqueId = event['uniqueId']?.toString() ?? '';
+        final status = event['status']?.toString() ?? '';
+        final message = event['message']?.toString();
+        debugPrint('[AbleCredit] Upload status event: type=$type uniqueId=$uniqueId status=$status message=$message');
+      },
+      onError: (Object error) {
+        debugPrint('[AbleCredit] Upload status stream error: $error');
+      },
+      onDone: () {
+        debugPrint('[AbleCredit] Upload status stream closed');
+      },
+    );
+  }
+
 
   Future<void> _loadLoans() async {
     final loans = await _loanRepo.loadAll();
@@ -130,31 +156,47 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _executeAction(LoanCaseItem loan, String action) async {
     final id = loan.applicationId;
+    debugPrint('[AbleCredit] _executeAction: action=$action applicationId=$id');
+    if (action == 'report') {
+      if (_reportLoadingIds.contains(id)) return;
+      setState(() => _reportLoadingIds.add(id));
+    }
     try {
       Map<String, dynamic> result;
       switch (action) {
         case 'audio':
+          debugPrint('[AbleCredit] Calling recordAudio(loanApplicationId=$id)');
           result = await AbleCreditSdkBridge.recordAudio(loanApplicationId: id);
         case 'business':
+          debugPrint('[AbleCredit] Calling captureBusinessPhotos(loanApplicationId=$id)');
           result = await AbleCreditSdkBridge.captureBusinessPhotos(loanApplicationId: id);
         case 'collateral':
+          debugPrint('[AbleCredit] Calling captureCollateralPhotos(loanApplicationId=$id)');
           result = await AbleCreditSdkBridge.captureCollateralPhotos(loanApplicationId: id);
         case 'family':
+          debugPrint('[AbleCredit] Calling captureFamilyPhotos(loanApplicationId=$id)');
           result = await AbleCreditSdkBridge.captureFamilyPhotos(loanApplicationId: id);
         case 'report':
+          debugPrint('[AbleCredit] Calling requestReportGeneration(applicationId=$id)');
           result = await AbleCreditSdkBridge.requestReportGeneration(id);
         default:
           return;
       }
+      debugPrint('[AbleCredit] _executeAction result: $result');
       if (!mounted) return;
-      if (result['success'] != true) {
+      if (result['success'] == true) {
+        final msg = result['message']?.toString();
+        final text = (msg != null && msg.isNotEmpty) ? msg : '$action started successfully';
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
+      } else {
         final msg = result['message']?.toString() ?? 'Action failed';
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
-      }
+      debugPrint('[AbleCredit] _executeAction error: $e');
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+    } finally {
+      if (action == 'report' && mounted) setState(() => _reportLoadingIds.remove(id));
     }
   }
 
@@ -177,6 +219,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    _uploadStatusSub?.cancel();
     _fetchRef.dispose();
     super.dispose();
   }
@@ -382,7 +425,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     _actionChip('Business', () => _executeAction(loan, 'business')),
                     _actionChip('Collateral', () => _executeAction(loan, 'collateral')),
                     _actionChip('Family', () => _executeAction(loan, 'family')),
-                    _actionChip('Report', () => _executeAction(loan, 'report')),
+                    _reportLoadingIds.contains(loan.applicationId)
+                        ? const SizedBox(
+                            width: 32,
+                            height: 32,
+                            child: Center(
+                              child: SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                            ),
+                          )
+                        : _actionChip('Report', () => _executeAction(loan, 'report')),
                   ],
                 ),
               ],

@@ -1,5 +1,7 @@
 package com.ablecredit.manual_flutter_app
 
+import android.util.Log
+import android.widget.Toast
 import com.google.gson.Gson
 import com.ablecredit.sdk.manager.AbleCredit
 import com.ablecredit.sdk.model.constants.AbleCreditErrorCodes
@@ -113,8 +115,10 @@ class MainActivity : FlutterActivity() {
                                     status: AbleCreditFileStatus,
                                     message: String?
                                 ) {
+                                    showToast("audio", status, message)
                                     audioStatusSink?.success(
                                         mapOf(
+                                            "type" to "audio",
                                             "uniqueId" to uniqueId,
                                             "status" to status.name,
                                             "message" to message
@@ -127,17 +131,47 @@ class MainActivity : FlutterActivity() {
                     }
                     "captureFamilyPhotos" -> {
                         val id = call.argument<String>("loanApplicationId")
-                        AbleCredit.captureFamilyPhotos(this, id)
+                        AbleCredit.captureFamilyPhotos(this, id, object : AbleCreditFileUploadListener {
+                            override fun onStatusChanged(uniqueId: String, status: AbleCreditFileStatus, message: String?) {
+                                showToast("family_photos", status, message)
+                                audioStatusSink?.success(mapOf(
+                                    "type" to "family_photos",
+                                    "uniqueId" to uniqueId,
+                                    "status" to status.name,
+                                    "message" to message
+                                ))
+                            }
+                        })
                         result.success(mapOf("success" to true))
                     }
                     "captureBusinessPhotos" -> {
                         val id = call.argument<String>("loanApplicationId")
-                        AbleCredit.captureBusinessPhotos(this, id)
+                        AbleCredit.captureBusinessPhotos(this, id, object : AbleCreditFileUploadListener {
+                            override fun onStatusChanged(uniqueId: String, status: AbleCreditFileStatus, message: String?) {
+                                showToast("business_photos", status, message)
+                                audioStatusSink?.success(mapOf(
+                                    "type" to "business_photos",
+                                    "uniqueId" to uniqueId,
+                                    "status" to status.name,
+                                    "message" to message
+                                ))
+                            }
+                        })
                         result.success(mapOf("success" to true))
                     }
                     "captureCollateralPhotos" -> {
                         val id = call.argument<String>("loanApplicationId")
-                        AbleCredit.captureCollateralPhotos(this, id)
+                        AbleCredit.captureCollateralPhotos(this, id, object : AbleCreditFileUploadListener {
+                            override fun onStatusChanged(uniqueId: String, status: AbleCreditFileStatus, message: String?) {
+                                showToast("collateral_photos", status, message)
+                                audioStatusSink?.success(mapOf(
+                                    "type" to "collateral_photos",
+                                    "uniqueId" to uniqueId,
+                                    "status" to status.name,
+                                    "message" to message
+                                ))
+                            }
+                        })
                         result.success(mapOf("success" to true))
                     }
                     "clearSdkData" -> {
@@ -179,6 +213,22 @@ class MainActivity : FlutterActivity() {
                 "message" to sdkResult.message,
                 "code" to sdkResult.ableCreditErrorCode.toString(),
             )
+        }
+    }
+
+    private fun showToast(type: String, status: AbleCreditFileStatus, message: String?) {
+        val label = when (status) {
+            AbleCreditFileStatus.UPLOADED    -> "[$type] Uploaded"
+            AbleCreditFileStatus.FAILED      -> "[$type] Failed: ${message ?: "unknown error"}"
+            AbleCreditFileStatus.UPLOADING   -> "[$type] Uploading…"
+            AbleCreditFileStatus.UPLOAD_PENDING -> "[$type] Upload pending"
+            AbleCreditFileStatus.IN_PROGRESS -> "[$type] In progress"
+            AbleCreditFileStatus.CREATED     -> "[$type] Created"
+            AbleCreditFileStatus.CANCELLED   -> "[$type] Cancelled"
+        }
+        Log.d("AbleCredit", "showToast: $label")
+        runOnUiThread {
+            Toast.makeText(applicationContext, label, Toast.LENGTH_SHORT).show()
         }
     }
 
