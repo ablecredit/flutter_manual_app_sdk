@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app_theme.dart';
+import '../flow/flow_screen.dart';
 import '../home/home_screen.dart';
 import '../profile/profile_screen.dart';
 
@@ -16,6 +17,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   static const _pages = <Widget>[
     HomeScreen(),
+    FlowScreen(),
     ProfileScreen(),
   ];
 
@@ -36,6 +38,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 icon: Icon(Icons.home_outlined),
                 activeIcon: Icon(Icons.home),
                 label: 'Home',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.account_tree_outlined),
+                activeIcon: Icon(Icons.account_tree),
+                label: 'Flow',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.person_outline),

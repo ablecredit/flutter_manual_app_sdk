@@ -59,7 +59,7 @@ android {
     }
 
     dependencies {
-        implementation("com.ablecredit:sdk:1.0.7")
+        implementation("com.ablecredit:sdk:1.0.8")
         implementation("com.google.code.gson:gson:2.11.0")
 
         implementation("androidx.core:core-ktx:1.13.1")
