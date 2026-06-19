@@ -8,6 +8,8 @@ class AppColors {
   static const gray400 = Color(0xFFBDBDBD);
   static const gray600 = Color(0xFF757575);
   static const gray800 = Color(0xFF424242);
+  static const navGreen = Color(0xFF2E7D32);
+  static const navGreenSurface = Color(0xFFE8F5E9);
 }
 
 class AppTheme {

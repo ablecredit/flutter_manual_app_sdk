@@ -7,6 +7,7 @@ import '../../ablecredit-bridge.dart';
 import '../../app_theme.dart';
 import '../../data/model/user_sdk_configuration.dart';
 import '../../data/repository/sdk_config_repository.dart';
+import '../../data/repository/wrapper_settings_repository.dart';
 import '../dashboard/dashboard_screen.dart';
 import 'sdk_configuration_dialog.dart';
 
@@ -19,6 +20,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   final _configRepo = SdkConfigRepository();
+  final _wrapperSettings = WrapperSettingsRepository();
   bool _loading = true;
 
   @override
@@ -42,7 +44,7 @@ class _MainScreenState extends State<MainScreen> {
     }
     try {
       final result = await AbleCreditSdkBridge.configure(
-        apiKey: creds.apiKey,
+        sdkKey: creds.apiKey,
         tenantId: creds.tenantId,
         userId: creds.userId,
         baseUrl: creds.baseUrl,
@@ -50,6 +52,8 @@ class _MainScreenState extends State<MainScreen> {
       );
       if (!mounted) return;
       if (result['success'] == true) {
+        await _wrapperSettings.applyToSdk();
+        if (!mounted) return;
         _goToDashboard();
       } else {
         _setLoading(false);
@@ -163,49 +167,76 @@ class _MainScreenState extends State<MainScreen> {
       backgroundColor: AppColors.white,
       body: Stack(
         children: [
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Spacer(flex: 3),
-                  const Text(
-                    'ABLECREDIT\nSDK Client',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.black,
-                      height: 1.2,
+          Column(
+            children: [
+              // Green splash strip (~40% height)
+              Expanded(
+                flex: 2,
+                child: ColoredBox(
+                  color: AppColors.navGreen,
+                  child: SafeArea(
+                    bottom: false,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Text(
+                            'ABLECREDIT\nSDK Client',
+                            style: TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.white,
+                              height: 1.2,
+                            ),
+                          ),
+                          SizedBox(height: 12),
+                          Text(
+                            'Secure client access for the AbleCredit wrapper',
+                            style: TextStyle(fontSize: 14, color: AppColors.navGreenSurface),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Secure client access for the AbleCredit wrapper',
-                    style: TextStyle(fontSize: 14, color: AppColors.gray600),
-                  ),
-                  const Spacer(flex: 4),
-                  FilledButton(
-                    onPressed: _loading ? null : _openConfigurationDialog,
-                    child: const Text('Get started'),
-                  ),
-                  const SizedBox(height: 32),
-                ],
+                ),
               ),
-            ),
+              // White bottom area with CTA
+              Expanded(
+                flex: 3,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      FilledButton(
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppColors.navGreen,
+                          foregroundColor: AppColors.white,
+                        ),
+                        onPressed: _loading ? null : _openConfigurationDialog,
+                        child: const Text('Get started'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
           if (_loading)
             const ColoredBox(
-              color: Color(0x99FFFFFF),
+              color: Color(0x992E7D32),
               child: Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    CircularProgressIndicator(color: AppColors.black),
+                    CircularProgressIndicator(color: AppColors.white),
                     SizedBox(height: 16),
                     Text(
                       'Initializing SDK…',
-                      style: TextStyle(fontSize: 14, color: AppColors.gray800),
+                      style: TextStyle(fontSize: 14, color: AppColors.white),
                     ),
                   ],
                 ),

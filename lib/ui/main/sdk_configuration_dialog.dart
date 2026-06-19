@@ -4,6 +4,7 @@ import '../../ablecredit-bridge.dart';
 import '../../app_theme.dart';
 import '../../data/model/user_sdk_configuration.dart';
 import '../../data/repository/sdk_config_repository.dart';
+import '../../data/repository/wrapper_settings_repository.dart';
 
 class SdkConfigurationDialog extends StatefulWidget {
   const SdkConfigurationDialog({
@@ -187,7 +188,7 @@ class _SdkConfigurationDialogState extends State<SdkConfigurationDialog> {
 
     try {
       final sdkResult = await AbleCreditSdkBridge.configure(
-        apiKey: apiKey,
+        sdkKey: apiKey,
         tenantId: tenantId,
         userId: userId,
         baseUrl: baseUrl,
@@ -201,6 +202,9 @@ class _SdkConfigurationDialogState extends State<SdkConfigurationDialog> {
       if (!mounted) return;
 
       if (sdkResult['success'] == true) {
+        // Re-apply persisted wrapper toggles; SDK flags are in-memory.
+        await WrapperSettingsRepository().applyToSdk();
+        if (!mounted) return;
         Navigator.of(context).pop(); // dismiss config dialog
         widget.onInitialized({
           'apiKey': apiKey,

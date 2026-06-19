@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- AbleCredit SDK theme overrides — black & white -->
+    <color name="ablecredit_primary">#000000</color>
+    <color name="ablecredit_on_primary">#FFFFFF</color>
+    <color name="ablecredit_accent">#000000</color>
+    <color name="ablecredit_surface">#FFFFFF</color>
+    <color name="ablecredit_on_surface">#000000</color>
+    <color name="ablecredit_text_secondary">#757575</color>
+    <color name="ablecredit_text_tertiary">#BDBDBD</color>
+    <color name="ablecredit_error">#CC0000</color>
+    <color name="ablecredit_warning">#886600</color>
+    <color name="ablecredit_disabled">#BDBDBD</color>
+</resources>
