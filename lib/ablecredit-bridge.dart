@@ -4,6 +4,10 @@ import 'package:flutter/services.dart';
 class AbleCreditSdkBridge {
   static const MethodChannel _channel = MethodChannel('ablecredit/wrapper_sdk');
   static const EventChannel _audioUploadStatusChannel = EventChannel('ablecredit/audio_upload_status');
+  static final Stream<Map<String, dynamic>> _fileUploadStatusStream =
+      _audioUploadStatusChannel.receiveBroadcastStream().map(
+            (event) => Map<String, dynamic>.from(event as Map),
+          );
 
   static Future<Map<String, dynamic>> configure({
     required String sdkKey,
@@ -173,11 +177,8 @@ class AbleCreditSdkBridge {
   /// Emits upload status events for all media types.
   /// Each event contains: `type` (audio|family_photos|business_photos|collateral_photos),
   /// `uniqueId`, `status` (AbleCreditFileStatus name), `message`.
-  static Stream<Map<String, dynamic>> get fileUploadStatusStream {
-    return _audioUploadStatusChannel.receiveBroadcastStream().map(
-          (event) => Map<String, dynamic>.from(event as Map),
-    );
-  }
+  static Stream<Map<String, dynamic>> get fileUploadStatusStream =>
+      _fileUploadStatusStream;
 
   @Deprecated('Use fileUploadStatusStream')
   static Stream<Map<String, dynamic>> get audioUploadStatusStream => fileUploadStatusStream;
