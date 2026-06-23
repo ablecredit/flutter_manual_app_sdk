@@ -746,13 +746,28 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
               const SizedBox(height: 2),
-              Text(
-                '${loan.applicationId}  •  $dateStr',
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppColors.gray600,
-                  fontFamily: 'monospace',
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      '${loan.applicationId}  •  $dateStr',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.gray600,
+                        fontFamily: 'monospace',
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.copy, size: 16, color: AppColors.gray600),
+                    visualDensity: VisualDensity.compact,
+                    tooltip: 'Copy application ID',
+                    onPressed: () async {
+                      await Clipboard.setData(ClipboardData(text: loan.applicationId));
+                      _wrapperSnack('Application ID copied');
+                    },
+                  ),
+                ],
               ),
               if (_filtersEnabled) ...[
                 const SizedBox(height: 10),

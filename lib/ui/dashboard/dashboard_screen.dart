@@ -4,6 +4,7 @@ import '../../app_theme.dart';
 import '../flow/flow_screen.dart';
 import '../home/home_screen.dart';
 import '../profile/profile_screen.dart';
+import '../scenarios/scenarios_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -18,6 +19,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   static const _pages = <Widget>[
     HomeScreen(),
     FlowScreen(),
+    ScenariosScreen(),
     ProfileScreen(),
   ];
 
@@ -43,6 +45,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 icon: Icon(Icons.account_tree_outlined),
                 activeIcon: Icon(Icons.account_tree),
                 label: 'Flow',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.list_alt_outlined),
+                activeIcon: Icon(Icons.list_alt),
+                label: 'Scenarios',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.person_outline),
