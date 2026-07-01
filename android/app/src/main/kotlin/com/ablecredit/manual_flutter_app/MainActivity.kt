@@ -314,7 +314,12 @@ class MainActivity : FlutterActivity() {
         transition: String?,
     ): AbleCreditDockedButton? {
         if (nextStep == null) return null
-        val label = if (nextStepLabel != null) "$nextStepLabel →" else "Next →"
+        val isGenerateReport = nextStep == "generateReport"
+        val label = when {
+            isGenerateReport -> nextStepLabel ?: "Generate report"
+            nextStepLabel != null -> "$nextStepLabel →"
+            else -> "Next →"
+        }
 
         return when (transition) {
             "clientScreen" -> AbleCreditDockedButton(
@@ -333,13 +338,11 @@ class MainActivity : FlutterActivity() {
                     if (ctx is android.app.Activity) ctx.finish()
                 }
             )
-            else -> AbleCreditDockedButton(label = label, onClick = { ctx ->
-                when (nextStep) {
-                    "recordAudio" -> AbleCredit.recordAudio(ctx, loanApplicationId)
-                    "captureBusinessPhotos" -> AbleCredit.captureBusinessPhotos(ctx, loanApplicationId)
-                    "captureFamilyPhotos" -> AbleCredit.captureFamilyPhotos(ctx, loanApplicationId)
-                    "captureCollateralPhotos" -> AbleCredit.captureCollateralPhotos(ctx, loanApplicationId)
-                    "generateReport" -> {
+            else -> if (isGenerateReport) {
+                AbleCreditDockedButton(
+                    label = label,
+                    isGenerateReport = true,
+                    onClick = { ctx ->
                         if (!loanApplicationId.isNullOrBlank()) {
                             AbleCredit.requestReportGeneration(ctx, loanApplicationId) { result ->
                                 val msg = when (result) {
@@ -353,8 +356,17 @@ class MainActivity : FlutterActivity() {
                             }
                         }
                     }
-                }
-            })
+                )
+            } else {
+                AbleCreditDockedButton(label = label, onClick = { ctx ->
+                    when (nextStep) {
+                        "recordAudio" -> AbleCredit.recordAudio(ctx, loanApplicationId)
+                        "captureBusinessPhotos" -> AbleCredit.captureBusinessPhotos(ctx, loanApplicationId)
+                        "captureFamilyPhotos" -> AbleCredit.captureFamilyPhotos(ctx, loanApplicationId)
+                        "captureCollateralPhotos" -> AbleCredit.captureCollateralPhotos(ctx, loanApplicationId)
+                    }
+                })
+            }
         }
     }
 
