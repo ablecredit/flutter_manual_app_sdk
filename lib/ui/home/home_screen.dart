@@ -222,7 +222,7 @@ class _HomeScreenState extends State<HomeScreen> {
       if (!mounted) return;
       if (result['success'] == true) {
         final appId = _extractApplicationId(result);
-        final loanRef = payload['loan_reference']?.toString() ?? '';
+        final loanRef = payload['reference_id']?.toString() ?? '';
         if (appId != null) {
           final item = LoanCaseItem(
             applicationId: appId,

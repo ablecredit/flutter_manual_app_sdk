@@ -25,17 +25,17 @@ class FlowConfig {
 /// Sample payload base for new-loan flows — same shape the app uses elsewhere
 /// when creating a loan (see CreateLoanDialog).
 const _samplePayload = {
-  'loan_reference': 'LN-REF-20260430-9012',
-  'client_unique_id': 'CUST-20260430-9012',
-  'product_id': 'MUT-IND-3065',
-  'branch_id': 'ML1348',
-  'source_system': '',
-  'user_name': 'Field Agent',
-  'branch_name': 'Bangalore Central',
-  'business_profile': {
-    'product': 'LAP',
-    'business_model': 'Trading',
-    'industry': 'Fashion Apparel',
+  'reference_id': 'LN-REF-20260430-9012',
+  'applicant_id': 'CUST-20260430-9012',
+  'applicant_type': 'primary',
+  'persona': 'Trading',
+  'source_system': 'android-sdk',
+  'user': {
+    'mobile': '8197837043',
+  },
+  'branch': {
+    'id': 'ML1348',
+    'name': 'Bangalore Central',
   },
   'data': {
     'borrower_details': {
@@ -52,13 +52,18 @@ const _samplePayload = {
       'quantum': '500000',
       'tenure': '24',
     },
+    'business_profile': {
+      'product': 'LAP',
+      'business_model': 'Trading',
+      'industry': 'Fashion Apparel',
+    },
   },
 };
 
 /// Builds a create-loan payload for a new-loan flow from a loan reference.
 Map<String, dynamic> buildFlowLoanPayload(String loanReference) {
   final payload = Map<String, dynamic>.from(_samplePayload);
-  payload['loan_reference'] = loanReference;
+  payload['reference_id'] = loanReference;
   return payload;
 }
 

@@ -4,17 +4,17 @@ import '../../app_theme.dart';
 import '../../data/repository/dropdown_items_repository.dart';
 
 const _samplePayload = {
-  'loan_reference': 'LN-REF-20260430-9012',
-  'client_unique_id': 'CUST-20260430-9012',
-  'product_id': 'MUT-IND-3065',
-  'branch_id': 'ML1348',
-  'source_system': '',
-  'user_name': 'Field Agent',
-  'branch_name': 'Bangalore Central',
-  'business_profile': {
-    'product': 'LAP',
-    'business_model': 'Trading',
-    'industry': 'Fashion Apparel',
+  'reference_id': 'LN-REF-20260430-9012',
+  'applicant_id': 'CUST-20260430-9012',
+  'applicant_type': 'primary',
+  'persona': 'Trading',
+  'source_system': 'android-sdk',
+  'user': {
+    'mobile': '8197837043',
+  },
+  'branch': {
+    'id': 'ML1348',
+    'name': 'Bangalore Central',
   },
   'data': {
     'borrower_details': {
@@ -30,6 +30,11 @@ const _samplePayload = {
       'business_name': 'trends',
       'quantum': '500000',
       'tenure': '24',
+    },
+    'business_profile': {
+      'product': 'LAP',
+      'business_model': 'Trading',
+      'industry': 'Fashion Apparel',
     },
   },
 };
@@ -125,14 +130,18 @@ class _CreateLoanDialogState extends State<CreateLoanDialog> {
     }
 
     final payload = Map<String, dynamic>.from(_samplePayload);
-    payload['loan_reference'] = loanReference;
-    payload['user_name'] = _userName.text.trim();
-    payload['branch_name'] = _branchName.text.trim();
+    payload['reference_id'] = loanReference;
+    payload['branch'] = {
+      'id': 'ML1348',
+      'name': _branchName.text.trim(),
+    };
 
-    final bp = Map<String, dynamic>.from(payload['business_profile'] as Map);
+    final data = Map<String, dynamic>.from(payload['data'] as Map);
+    final bp = Map<String, dynamic>.from(data['business_profile'] as Map);
     if (_selectedProduct != null) bp['product'] = _selectedProduct;
     if (_selectedBusinessModel != null) bp['business_model'] = _selectedBusinessModel;
-    payload['business_profile'] = bp;
+    data['business_profile'] = bp;
+    payload['data'] = data;
 
     Navigator.of(context).pop(payload);
   }
